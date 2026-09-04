@@ -14,13 +14,18 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------------
-# VERIFICACIÓN DE GOOGLE SEARCH CONSOLE
+# INYECCIÓN DINÁMICA DE META ETIQUETA EN EL <HEAD>
 # ---------------------------------------------------------
-st.markdown(
+components.html(
     """
-    <meta name="google-site-verification" content="UJYyYWxEizdRTILf3NWz5IEhDL5cMY4ieFpmyl2MsbI" />
+    <script>
+        var meta = document.createElement('meta');
+        meta.name = "google-site-verification";
+        meta.content = "UJYyYWxEizdRTILf3NWz5IEhDL5cMY4ieFpmyl2MsbI";
+        window.parent.document.getElementsByTagName('head')[0].appendChild(meta);
+    </script>
     """,
-    unsafe_allow_html=True
+    height=0,
 )
 
 # ---------------------------------------------------------
