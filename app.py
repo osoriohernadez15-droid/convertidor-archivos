@@ -14,26 +14,28 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------------
-# SECCIÓN DE PUBLICIDAD (ADSTERRA)
+# PUBLICIDAD DE ADSTERRA (BARRA LATERAL)
 # ---------------------------------------------------------
 with st.sidebar:
     st.header("Patrocinado")
     
-    # REEMPLAZA EL CONTENIDO DE ESTA VARIABLE CON EL CÓDIGO QUE TE DA ADSTERRA:
+    # Tu código oficial de Adsterra integrado
     codigo_adsterra = """
-    <script type="text/javascript">
-        atOptions = {
-            'key' : 'AQUI_VA_TU_KEY_DE_ADSTERRA',
-            'format' : 'iframe',
-            'height' : 250,
-            'width' : 300,
-            'params' : {}
-        };
-    </script>
-    <script type="text/javascript" src="//www.highperformanceformat.com/AQUI_VA_TU_KEY_DE_ADSTERRA/invoke.js"></script>
+    <div style="text-align: center;">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '67b9aefc9d19cf7842d8c70ed4d7e904',
+                'format' : 'iframe',
+                'height' : 250,
+                'width' : 300,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="https://www.highrevenueformat.com/67b9aefc9d19cf7842d8c70ed4d7e904/invoke.js"></script>
+    </div>
     """
     
-    # Renderizar anuncio en HTML
+    # Renderizar el anuncio de 300x250 píxeles
     components.html(codigo_adsterra, height=270)
     st.caption("Publicidad para mantener esta herramienta gratuita.")
 
