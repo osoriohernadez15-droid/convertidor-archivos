@@ -2,4 +2,3 @@ streamlit
 Pillow
 pydub
 pdf2image
-pyaudioop
