@@ -8,24 +8,9 @@ import os
 
 # Configuración básica de la aplicación
 st.set_page_config(
-    page_title="Convertidor de Archivos Gratis",
+    page_title="Convertidor de Archivos Gratis - PNG, JPG, MP3, PDF",
     page_icon="🔄",
     layout="wide"
-)
-
-# ---------------------------------------------------------
-# INYECCIÓN DINÁMICA DE META ETIQUETA EN EL <HEAD>
-# ---------------------------------------------------------
-components.html(
-    """
-    <script>
-        var meta = document.createElement('meta');
-        meta.name = "google-site-verification";
-        meta.content = "UJYyYWxEizdRTILf3NWz5IEhDL5cMY4ieFpmyl2MsbI";
-        window.parent.document.getElementsByTagName('head')[0].appendChild(meta);
-    </script>
-    """,
-    height=0,
 )
 
 # ---------------------------------------------------------
@@ -55,15 +40,18 @@ with st.sidebar:
 # ---------------------------------------------------------
 # APLICACIÓN PRINCIPAL - CONVERTIDOR DE ARCHIVOS
 # ---------------------------------------------------------
-st.title("🔄 Convertidor de Archivos Gratuito")
-st.write("Convierte tus imágenes, archivos de audio y documentos PDF de forma rápida y directa.")
+st.title("🔄 Convertidor de Archivos Online Gratuito")
+st.write("""
+Bienvenido al **Convertidor de Archivos en Línea**. Esta herramienta gratuita te permite **convertir imágenes (PNG, JPG, WEBP), archivos de audio (MP3, WAV, OGG) y documentos PDF a imagen** de manera rápida, segura y sin necesidad de instalar ningún software en tu equipo.
+""")
 
 # Pestañas para organizar las herramientas
-tab_img, tab_audio, tab_pdf = st.tabs(["🖼️ Imágenes", "🎵 Audio", "📄 PDF a Imagen"])
+tab_img, tab_audio, tab_pdf = st.tabs(["🖼️ Convertir Imágenes", "🎵 Convertir Audio", "📄 Convertir PDF a Imagen"])
 
 # --- TAB 1: CONVERTIDOR DE IMÁGENES ---
 with tab_img:
-    st.subheader("Convertir Imágenes")
+    st.subheader("Convertidor de Imágenes Online (PNG, JPG, WEBP, BMP)")
+    st.write("Cambia el formato de tus fotos e imágenes al instante.")
     img_file = st.file_uploader("Sube una imagen (PNG, JPG, WEBP, BMP)", type=["png", "jpg", "jpeg", "webp", "bmp"], key="img_up")
     
     if img_file:
@@ -90,7 +78,8 @@ with tab_img:
 
 # --- TAB 2: CONVERTIDOR DE AUDIO ---
 with tab_audio:
-    st.subheader("Convertir Audio")
+    st.subheader("Convertidor de Audio Gratis (MP3, WAV, OGG, FLAC)")
+    st.write("Transforma tus archivos de sonido a formatos compatibles con cualquier reproductor.")
     audio_file = st.file_uploader("Sube un archivo de audio (MP3, WAV, OGG, FLAC)", type=["mp3", "wav", "ogg", "flac"], key="audio_up")
     
     if audio_file:
@@ -116,7 +105,8 @@ with tab_audio:
 
 # --- TAB 3: CONVERTIDOR DE PDF ---
 with tab_pdf:
-    st.subheader("Convertir Páginas de PDF a Imágenes")
+    st.subheader("Convertidor de PDF a Imagen PNG")
+    st.write("Extrae las páginas de tus documentos PDF y conviértelas en imágenes PNG de alta calidad.")
     pdf_file = st.file_uploader("Sube un documento PDF", type=["pdf"], key="pdf_up")
     
     if pdf_file:
@@ -140,3 +130,12 @@ with tab_pdf:
                         mime="image/png",
                         key=f"dl_pdf_{i}"
                     )
+
+# Pie de página con información SEO
+st.markdown("---")
+st.markdown("### ¿Por qué utilizar nuestro Convertidor de Archivos Gratuito?")
+st.markdown("""
+* **100% Gratuito y sin registro:** Convierte tus archivos al instante sin necesidad de crear una cuenta.
+* **Seguridad garantizada:** Tus archivos procesados se eliminan de nuestros servidores temporales de forma automática.
+* **Soporte multiformato:** Soporta imágenes PNG, JPG, WEBP, audios MP3, WAV y documentos PDF.
+""")
