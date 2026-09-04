@@ -1,195 +1,128 @@
-import os
-import time
 import streamlit as st
+import streamlit.components.v1 as components
 from PIL import Image
-from pdf2image import convert_from_bytes
 from pydub import AudioSegment
+from pdf2image import convert_from_path
+import tempfile
+import os
 
-# Configuración de página con ícono y título personalizado
+# Configuración básica de la aplicación
 st.set_page_config(
-    page_title="Convertidor Multiformato v2.0",
+    page_title="Convertidor de Archivos Gratis",
     page_icon="🔄",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="wide"
 )
 
-# Estilos CSS personalizados (Animaciones, Gradientes y Ocultar Menú)
-st.markdown("""
-    <style>
-    /* Ocultar menú superior y footer de Streamlit */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
+# ---------------------------------------------------------
+# SECCIÓN DE PUBLICIDAD (ADSTERRA)
+# ---------------------------------------------------------
+with st.sidebar:
+    st.header("Patrocinado")
     
-    /* Fondo principal con gradiente suave */
-    .stApp {
-        background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
-    }
-
-    /* Estilo de la barra lateral */
-    [data-testid="stSidebar"] {
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(10px);
-        border-right: 1px solid rgba(255, 255, 255, 0.3);
-    }
-
-    /* Botones de navegación en la barra lateral */
-    div[data-testid="stSidebar"] .stButton > button {
-        width: 100%;
-        background: white;
-        color: #2c3e50;
-        font-weight: 600;
-        border-radius: 12px;
-        border: 1px solid rgba(0,0,0,0.08);
-        padding: 10px 16px;
-        text-align: left;
-        margin-bottom: 8px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        transition: all 0.2s ease-in-out;
-    }
-
-    div[data-testid="stSidebar"] .stButton > button:hover {
-        background: #f0f4f8;
-        transform: translateX(3px);
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        color: #00f2fe;
-    }
-
-    /* Tarjetas contenedoras modernas */
-    div.stCard {
-        background-color: rgba(255, 255, 255, 0.9);
-        border-radius: 16px;
-        padding: 24px;
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-        backdrop-filter: blur(4px);
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        margin-bottom: 20px;
-    }
-
-    /* Botones de acción principales (Convertir) */
-    .main .stButton>button {
-        background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
-        color: white;
-        font-weight: bold;
-        border-radius: 12px;
-        border: none;
-        padding: 12px 24px;
-        transition: all 0.3s ease-in-out;
-        box-shadow: 0 4px 15px rgba(0,242,254,0.4);
-    }
+    # REEMPLAZA EL CONTENIDO DE ESTA VARIABLE CON EL CÓDIGO QUE TE DA ADSTERRA:
+    codigo_adsterra = """
+    <script type="text/javascript">
+        atOptions = {
+            'key' : 'AQUI_VA_TU_KEY_DE_ADSTERRA',
+            'format' : 'iframe',
+            'height' : 250,
+            'width' : 300,
+            'params' : {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/AQUI_VA_TU_KEY_DE_ADSTERRA/invoke.js"></script>
+    """
     
-    .main .stButton>button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0,242,254,0.6);
-        color: white;
-    }
+    # Renderizar anuncio en HTML
+    components.html(codigo_adsterra, height=270)
+    st.caption("Publicidad para mantener esta herramienta gratuita.")
 
-    /* Encabezados */
-    h1, h2, h3 {
-        color: #2c3e50;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# ---------------------------------------------------------
+# APLICACIÓN PRINCIPAL - CONVERTIDOR DE ARCHIVOS
+# ---------------------------------------------------------
+st.title("🔄 Convertidor de Archivos Gratuito")
+st.write("Convierte tus imágenes, archivos de audio y documentos PDF de forma rápida y directa.")
 
-# Título principal con ícono animado
-st.markdown("<h1 style='text-align: center;'>🔄 Convertidor de Archivos v2.0</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #4a5568;'>Transforma tus archivos al instante de forma rápida, segura y privada.</p>", unsafe_allow_html=True)
-st.write("---")
+# Pestañas para organizar las herramientas
+tab_img, tab_audio, tab_pdf = st.tabs(["🖼️ Imágenes", "🎵 Audio", "📄 PDF a Imagen"])
 
-# Estado de la categoría en la sesión
-if "categoria" not in st.session_state:
-    st.session_state.categoria = "🖼️ Imágenes"
-
-# Menú lateral interactivo con botones estilizados
-st.sidebar.markdown("<h3 style='text-align: center;'>Categorías</h3>", unsafe_allow_html=True)
-
-if st.sidebar.button("🖼️ Imágenes", use_container_width=True):
-    st.session_state.categoria = "🖼️ Imágenes"
-
-if st.sidebar.button("📄 PDF a Imagen", use_container_width=True):
-    st.session_state.categoria = "📄 PDF a Imagen"
-
-if st.sidebar.button("🎵 Audio", use_container_width=True):
-    st.session_state.categoria = "🎵 Audio"
-
-categoria = st.session_state.categoria
-
-# --- CATEGORÍA: IMÁGENES ---
-if categoria == "🖼️ Imágenes":
-    st.markdown("### 🖼️ Conversión de Imágenes")
+# --- TAB 1: CONVERTIDOR DE IMÁGENES ---
+with tab_img:
+    st.subheader("Convertir Imágenes")
+    img_file = st.file_uploader("Sube una imagen (PNG, JPG, WEBP, BMP)", type=["png", "jpg", "jpeg", "webp", "bmp"], key="img_up")
     
-    archivo = st.file_uploader("Arrastra o selecciona tu imagen", type=["png", "jpg", "jpeg", "webp", "bmp"])
-    
-    if archivo:
-        col1, col2 = st.columns([1, 1])
+    if img_file:
+        img = Image.open(img_file)
+        st.image(img, caption="Vista previa", width=250)
         
-        with col1:
-            st.image(archivo, caption="Vista previa del archivo original", use_container_width=True)
+        target_format = st.selectbox("Convertir a:", ["PNG", "JPEG", "WEBP", "BMP"], key="img_fmt")
+        
+        if st.button("Convertir Imagen", key="btn_img"):
+            buffer = tempfile.NamedTemporaryFile(delete=False, suffix=f".{target_format.lower()}")
             
-        with col2:
-            formato_salida = st.selectbox("Selecciona el formato de salida:", ["PNG", "JPEG", "WEBP", "BMP", "PDF"])
-            
-            if st.button("✨ Convertir Imagen"):
-                with st.spinner("Procesando y optimizando imagen..."):
-                    time.sleep(1) # Simulación de animación
-                    img = Image.open(archivo)
-                    if formato_salida in ["JPEG", "PDF"] and img.mode in ("RGBA", "P"):
-                        img = img.convert("RGB")
-                    
-                    nombre_base = os.path.splitext(archivo.name)[0]
-                    ext = formato_salida.lower()
-                    nombre_salida = f"{nombre_base}.{ext}"
-                    img.save(nombre_salida, format=formato_salida)
-                    
-                st.success("¡Conversión completada con éxito!")
-                st.balloons() # Animación de celebración
+            # Convertir formato RGB si se guarda como JPEG
+            if target_format == "JPEG" and img.mode in ("RGBA", "P"):
+                img = img.convert("RGB")
                 
-                with open(nombre_salida, "rb") as f:
+            img.save(buffer.name, format=target_format)
+            
+            with open(buffer.name, "rb") as file:
+                st.download_button(
+                    label=f"⬇️ Descargar en {target_format}",
+                    data=file,
+                    file_name=f"imagen_convertida.{target_format.lower()}",
+                    mime=f"image/{target_format.lower()}"
+                )
+
+# --- TAB 2: CONVERTIDOR DE AUDIO ---
+with tab_audio:
+    st.subheader("Convertir Audio")
+    audio_file = st.file_uploader("Sube un archivo de audio (MP3, WAV, OGG, FLAC)", type=["mp3", "wav", "ogg", "flac"], key="audio_up")
+    
+    if audio_file:
+        st.audio(audio_file)
+        audio_format = st.selectbox("Convertir a:", ["MP3", "WAV", "OGG"], key="audio_fmt")
+        
+        if st.button("Convertir Audio", key="btn_audio"):
+            with tempfile.NamedTemporaryFile(delete=False, suffix=f".{audio_file.name.split('.')[-1]}") as tmp_in:
+                tmp_in.write(audio_file.read())
+                in_path = tmp_in.name
+                
+            sound = AudioSegment.from_file(in_path)
+            out_path = f"{in_path}_out.{audio_format.lower()}"
+            sound.export(out_path, format=audio_format.lower())
+            
+            with open(out_path, "rb") as file:
+                st.download_button(
+                    label=f"⬇️ Descargar Audio en {audio_format}",
+                    data=file,
+                    file_name=f"audio_convertido.{audio_format.lower()}",
+                    mime=f"audio/{audio_format.lower()}"
+                )
+
+# --- TAB 3: CONVERTIDOR DE PDF ---
+with tab_pdf:
+    st.subheader("Convertir Páginas de PDF a Imágenes")
+    pdf_file = st.file_uploader("Sube un documento PDF", type=["pdf"], key="pdf_up")
+    
+    if pdf_file:
+        if st.button("Convertir PDF", key="btn_pdf"):
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_pdf:
+                tmp_pdf.write(pdf_file.read())
+                pdf_path = tmp_pdf.name
+                
+            images = convert_from_path(pdf_path)
+            st.success(f"¡Se convirtieron {len(images)} página(s)!")
+            
+            for i, page_img in enumerate(images):
+                buf = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
+                page_img.save(buf.name, format="PNG")
+                
+                with open(buf.name, "rb") as f:
                     st.download_button(
-                        label="⬇️ Descargar Imagen Convertida",
+                        label=f"⬇️ Descargar Página {i+1} (PNG)",
                         data=f,
-                        file_name=nombre_salida,
-                        mime=f"image/{ext}" if ext != "pdf" else "application/pdf"
+                        file_name=f"pagina_{i+1}.png",
+                        mime="image/png",
+                        key=f"dl_pdf_{i}"
                     )
-
-# --- CATEGORÍA: DOCUMENTOS ---
-elif categoria == "📄 PDF a Imagen":
-    st.markdown("### 📄 Convertir Documentos PDF a Imagen")
-    archivo = st.file_uploader("Carga tu archivo PDF", type=["pdf"])
-    
-    if archivo:
-        if st.button("✨ Convertir Primera Página a PNG"):
-            with st.spinner("Extrayendo página del PDF..."):
-                time.sleep(1)
-                imagenes = convert_from_bytes(archivo.read())
-                if imagenes:
-                    nombre_salida = f"{os.path.splitext(archivo.name)[0]}_pagina1.png"
-                    imagenes[0].save(nombre_salida, "PNG")
-                    
-            st.success("¡Página convertida exitosamente!")
-            st.balloons()
-            
-            with open(nombre_salida, "rb") as f:
-                st.download_button("⬇️ Descargar Imagen PNG", f, file_name=nombre_salida, mime="image/png")
-
-# --- CATEGORÍA: AUDIO ---
-elif categoria == "🎵 Audio":
-    st.markdown("### 🎵 Conversión de Archivos de Audio")
-    archivo = st.file_uploader("Carga tu pista de audio", type=["mp3", "wav", "ogg", "flac"])
-    
-    if archivo:
-        formato_salida = st.selectbox("Selecciona el nuevo formato:", ["mp3", "wav", "ogg"])
-        if st.button("✨ Convertir Audio"):
-            with st.spinner("Procesando archivo de audio..."):
-                fmt_origen = os.path.splitext(archivo.name)[1].replace(".", "")
-                audio = AudioSegment.from_file(archivo, format=fmt_origen)
-                
-                nombre_salida = f"{os.path.splitext(archivo.name)[0]}.{formato_salida}"
-                audio.export(nombre_salida, format=formato_salida)
-                
-            st.success("¡Audio convertido correctamente!")
-            st.balloons()
-            
-            with open(nombre_salida, "rb") as f:
-                st.download_button("⬇️ Descargar Pista de Audio", f, file_name=nombre_salida, mime=f"audio/{formato_salida}")
