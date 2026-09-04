@@ -14,12 +14,21 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------------
+# VERIFICACIÓN DE GOOGLE SEARCH CONSOLE
+# ---------------------------------------------------------
+st.markdown(
+    """
+    <meta name="google-site-verification" content="UJYyYWxEizdRTILf3NWz5IEhDL5cMY4ieFpmyl2MsbI" />
+    """,
+    unsafe_allow_html=True
+)
+
+# ---------------------------------------------------------
 # PUBLICIDAD DE ADSTERRA (BARRA LATERAL)
 # ---------------------------------------------------------
 with st.sidebar:
     st.header("Patrocinado")
     
-    # Tu código oficial de Adsterra integrado
     codigo_adsterra = """
     <div style="text-align: center;">
         <script type="text/javascript">
@@ -35,7 +44,6 @@ with st.sidebar:
     </div>
     """
     
-    # Renderizar el anuncio de 300x250 píxeles
     components.html(codigo_adsterra, height=270)
     st.caption("Publicidad para mantener esta herramienta gratuita.")
 
@@ -62,7 +70,6 @@ with tab_img:
         if st.button("Convertir Imagen", key="btn_img"):
             buffer = tempfile.NamedTemporaryFile(delete=False, suffix=f".{target_format.lower()}")
             
-            # Convertir formato RGB si se guarda como JPEG
             if target_format == "JPEG" and img.mode in ("RGBA", "P"):
                 img = img.convert("RGB")
                 
